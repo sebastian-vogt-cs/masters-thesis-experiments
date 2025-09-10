@@ -22,6 +22,14 @@ The pickles of the experiment data and the figures for the thesis are saved to `
 
 ## Executing
 ### Setting up the environment
+The code was run with python 3.10, but other versions of python 3 should work as well.
 In the root of the project, run
 1. `python3.10 -m venv env`
 2. `source env/bin/activate`
+3. `pip install -r requirements.txt`
+
+### Running the experiments
+Run an experiment with `python same_mean_experiment.py` or `python multimodal_experiment.py`
+
+### Running the Jupyter notebooks
+The `requirements.txt` already contains the `ipykernel` package. I ran the notebooks by opening them in VSCode and chosing the virtual enviroment in `env` as a kernel.
