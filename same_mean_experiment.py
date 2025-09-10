@@ -5,8 +5,14 @@ from model.arm import Arm
 from algorithms.vkabc import VKABC, KABC
 
 def get_same_mean_experiment(V):
-    """
-    Returns a model where the two clusters have the same mean but one has unit covariance, the other has a covariance with V on the diagonal.
+    """Generates a model with two distributions/clusters and two arms per cluster. The two clusters have the same mean 
+    but one has unit covariance, the other has a covariance with V on the diagonal.
+
+    Args:
+        V (int): The number on the diagonal of the covariance matrix of the second distribution.
+
+    Returns:
+        (list[Arm], int): The model as a list of arms and the number of clusters K.
     """
 
     # The model is a list of arms
@@ -30,6 +36,9 @@ def get_same_mean_experiment(V):
     return arms, 2
 
 def execute():
+    """Executes the same mean experiment for different variances of the second distribution.
+    """
+
     sampling_complexities_VKABC = {}
     sampling_complexities_KABC = {}
     taus = {}

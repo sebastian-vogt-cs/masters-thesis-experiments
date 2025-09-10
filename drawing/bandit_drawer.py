@@ -3,6 +3,14 @@ import matplotlib.pyplot as plt
 
 # Author: Claude code
 def draw(arms: list[Arm], filename: str):
+    """Draw a scatter plot with samples from a multi-armed bandit. Each arm has its own marker and each cluster its own
+    color.
+
+    Args:
+        arms (list[Arm]): The multi-armed bandit as a list of arms.
+        filename (str): The file to save the figure to.
+    """
+
     # Configure matplotlib to match thesis styling with LaTeX rendering
     plt.rcParams.update({
         'text.usetex': True,  # Use LaTeX for text rendering
@@ -75,8 +83,17 @@ def draw(arms: list[Arm], filename: str):
 
 
 # Author: Claude code
-def draw_sampling_complexity_comparison(distances, complexities_vkabc_empirical, complexities_kabc, filename, xlabel='Variance Factor'):
-    """Draw a comparison plot of empirical VKABC vs KABC sampling complexities"""
+def draw_sampling_complexity_comparison(x_axis, complexities_vkabc_empirical, complexities_kabc, filename, xlabel='Variance Factor'):
+    """Draw a comparison line plot of empirical VKABC vs KABC sampling complexities.
+
+    Args:
+        x_axis (list): The x-axis of the plot as a list.
+        complexities_vkabc_empirical (list): The sampling complexities of vkabc. One value for every number in
+        x_axis.
+        complexities_kabc (list): The sampling complexities of kabc. One value for every number in x_axis.
+        filename (string): The file to save the figure to.
+        xlabel (str, optional): The label of the x axis. Defaults to 'Variance Factor'.
+    """
     
     # Configure matplotlib to match thesis styling with LaTeX rendering
     plt.rcParams.update({
@@ -104,9 +121,9 @@ def draw_sampling_complexity_comparison(distances, complexities_vkabc_empirical,
     
     plt.figure(figsize=(5, 5), dpi=150)
     
-    plt.plot(distances, complexities_vkabc_empirical, 'o-', linewidth=2, markersize=8, 
+    plt.plot(x_axis, complexities_vkabc_empirical, 'o-', linewidth=2, markersize=8, 
              color=TUMBlue, label='VKABC')
-    plt.plot(distances, complexities_kabc, 's-', linewidth=2, markersize=8, 
+    plt.plot(x_axis, complexities_kabc, 's-', linewidth=2, markersize=8, 
              color=TUMAccentOrange, label='KABC')
     
     plt.xlabel(xlabel)
@@ -130,8 +147,17 @@ def draw_sampling_complexity_comparison(distances, complexities_vkabc_empirical,
 
 
 # Author: Claude code
-def draw_theoretical_complexity(distances, complexities_vkabc_empirical, tau_values, filename, factor=None, xlabel='Variance Factor'):
-    """Draw comparison of empirical vs theoretical VKABC sampling complexity"""
+def draw_theoretical_complexity(x_axis, complexities_vkabc_empirical, tau_values, filename, factor=None, xlabel='Variance Factor'):
+    """Draw comparison of empirical vs theoretical VKABC sampling complexity
+
+    Args:
+        x_axis (_type_): The x-axis of the plot as a list.
+        complexities_vkabc_empirical (list): The empirical sampling complexities.
+        tau_values (_type_): The theoretical sampling complexities.
+        filename (string): The file to save the figure to.
+        factor (int, optional): Scaling factor for the empirical distance. Defaults to None.
+        xlabel (str, optional): The label of the x axis. Defaults to 'Variance Factor'.
+    """
 
     if factor:
         complexities_vkabc_empirical = [factor * c for c in complexities_vkabc_empirical]
@@ -167,9 +193,9 @@ def draw_theoretical_complexity(distances, complexities_vkabc_empirical, tau_val
     else:
         label = 'VKABC (Empirical)'
 
-    plt.plot(distances, complexities_vkabc_empirical, 'o-', linewidth=2, markersize=8, 
+    plt.plot(x_axis, complexities_vkabc_empirical, 'o-', linewidth=2, markersize=8, 
              color=TUMBlue, label=label)
-    plt.plot(distances, tau_values, '^--', linewidth=2, markersize=8, 
+    plt.plot(x_axis, tau_values, '^--', linewidth=2, markersize=8, 
              color=TUMAccentGreen, label='VKABC (Theoretical)')
     
     plt.xlabel(xlabel)

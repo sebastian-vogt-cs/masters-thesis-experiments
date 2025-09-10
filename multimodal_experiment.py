@@ -42,6 +42,9 @@ def get_multimodal_experiment(mix):
 
 # Author: Claude code
 def execute():
+    """Executes the multimodal experiment with different micture fractions.
+    """
+
     arms, N, D, K = get_multimodal_experiment(0.5)
     with open('data/multimodal_experiment_data.p', 'wb') as fp:
         pickle.dump(arms, fp, protocol=pickle.HIGHEST_PROTOCOL)

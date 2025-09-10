@@ -6,9 +6,27 @@ processes = cpu_count()
 print(f"using {processes} processes")
 
 def _g(x, y):
+    """Calculates the Gaussian kernel.
+
+    Args:
+        x: First input vector as a numpy array.
+        y: Second imput vector as a numpy array.
+
+    Returns:
+        number: Result of Gaussian kernel.
+    """
     return np.exp(-(np.dot(y - x, y - x)) / 5000)
 
 def _sample(n, arms):
+    """Samples every arm n times and returns a list of numpy arrays.
+
+    Args:
+        n (int): Number of times every arm is samples.
+        arms (list): Multi armed bandit as list of arms. 
+
+    Returns:
+        list: List with the samples for every arm as a numpy array each
+    """
     data = []
     for arm in arms:
         s = arm.sample(n)
@@ -17,7 +35,14 @@ def _sample(n, arms):
 
 # Author: Claude code
 def _calculate_single_arm_variance(arm_data):
-    """Calculate empirical variance for a single arm's data."""
+    """Calculate empirical variance for a single arm's data.
+
+    Args:
+        arm_data: Data of an arm as a numpy array.
+
+    Returns:
+        number: The empirical variance of the arm.
+    """
     n = len(arm_data)
     v_hat = 0.0
     for t in range(n):
@@ -30,14 +55,16 @@ def _calculate_single_arm_variance(arm_data):
     v_hat /= n - 1
     return v_hat
 
-def _calculate_empirical_variances(data):
-    with Pool(processes=processes) as pool:
-        vars = pool.map(_calculate_single_arm_variance, data)
-    return vars
-
 # Author: Claude code
 def _calculate_single_distance(args):
-    """Calculate distance between a pair of arms."""
+    """Calculate distance between a pair of arms i, j.
+
+    Args:
+        args: The number of arm i, the number of arm j, the samples from arm i, the samples from arm j.
+
+    Returns:
+        The number of arm i, the number of arm j, the empirical distance between arms i and j.
+    """
     i, j, arm_i, arm_j = args
     n = len(arm_i)
     assert len(arm_j) == n
@@ -50,6 +77,14 @@ def _calculate_single_distance(args):
 
 # Author: Claude code
 def _calculate_distances(data):
+    """Calculates the pairwise distance between all arms.
+
+    Args:
+        data: List of samples for every arm.
+
+    Returns:
+        Numpy array containing the empirical distances of all pairs of arms in a matrix.
+    """
     distances = np.zeros((len(data), len(data)))
     
     # Prepare arguments for parallel processing
@@ -71,7 +106,15 @@ def _calculate_distances(data):
 
 # Author: Claude code
 def _calculate_variances_and_distances(data):
-    """Calculate both variances and distances in parallel using a single process pool."""
+    """Calculate both variances and distances in parallel using a single process pool.
+
+    Args:
+        data: List of samples for every arm.
+
+    Returns:
+        List of variances for every arm, numpy array containing the empirical distances of all pairs of arms in a
+        matrix.
+    """
     n_arms = len(data)
     
     # Prepare all tasks: variances and distance pairs
@@ -128,6 +171,14 @@ def _process_mixed_task(task):
         return ('distance', (i, j), distance)
 
 def _get_connected_components(adjacency):
+    """Get connected components of a graph represented by an adjacency matrix.
+
+    Args:
+        adjacency: Graph as an adjacency matrix.
+
+    Returns:
+        Connected components as a list of lists.
+    """
     # https://www.geeksforgeeks.org/dsa/connected-components-in-an-undirected-graph/
     n = len(adjacency)
 
@@ -160,6 +211,17 @@ def _get_connected_components(adjacency):
 
 
 def _calculate_tau(arms, delta, vars, dists):
+    """Estimates the theoretical sampling complexity based on estimated variances and empirical distances.
+
+    Args:
+        arms: Multi-armed bandit.
+        delta: Confidence setting.
+        vars (list): Variances of the arms.
+        dists: Pairwise distances of the arms.
+
+    Returns:
+        Estimate of theoretical sampling complexity.
+    """
     N = len(arms)
     log_term = math.log((32 * (N*N - N))/delta)
     distances_different_clusters = []
@@ -177,6 +239,17 @@ def _calculate_tau(arms, delta, vars, dists):
     return 8 * N * ((2 * math.log(ceil_term)) + log_term) * max_term
 
 def _VKABC_CLUSTER(k, delta, arms):
+    """The clustering procedure used in the adaptive VKABC algorithm
+
+    Args:
+        k: Iteration.
+        delta: Confidence setting.
+        arms: Multi-armed bandit.
+
+    Returns:
+        List of lists as the clustering, the number of samples drawn, the estimate of the theoretical sampling
+        complexity.
+    """
     N = len(arms)
     # First, we need to calculate the sample size
     log_term = 2 * math.log(k) + math.log((32 * (N*N - N))/delta)
@@ -208,6 +281,16 @@ def _VKABC_CLUSTER(k, delta, arms):
     return _get_connected_components(incidence), N * nk, tau
 
 def _KABC_CLUSTER(k, delta, arms):
+    """The clustering procedure used in the adaptive KABC algorithm
+
+    Args:
+        k: Iteration.
+        delta: Confidence setting.
+        arms: Multi-armed bandit.
+
+    Returns:
+        List of lists as the clustering, the number of samples drawn, -1
+    """
     N = len(arms)
     # First, we need to calculate the sample size
     log_term = 2 * math.log(k) + math.log((8 * (N*N - N))/delta)
@@ -234,6 +317,17 @@ def _KABC_CLUSTER(k, delta, arms):
 
 
 def _adaptive(delta, K, arms, CLUSTER):
+    """The adaptive algorithm.
+
+    Args:
+        delta: Confidence setting.
+        K: Total number of clusters.
+        arms: Multi-armed bandit.
+        CLUSTER: The clustering procedure to use.
+
+    Returns:
+        The result from the CLUSTER algorithm as soon as K clusters are reached.
+    """
     k = 2
     sampling_complexity = 0
     while True:
